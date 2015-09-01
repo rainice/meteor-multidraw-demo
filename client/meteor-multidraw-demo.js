@@ -1,14 +1,16 @@
-points = new Meteor.Collection('pointsCollection');
-var canvas;
+points = new Mongo.Collection('pointsCollection');
+var canvas
+  , $canvas;
 
-Deps.autorun( function () {
+//Tracker.autorun( function () {
   Meteor.subscribe('pointsSubscription');
-});
+//});
 
 Meteor.startup( function() {
   canvas = new Canvas();
+  $canvas = $('#canvas'); //cache canvas.
 
-  Deps.autorun( function() {
+  Tracker.autorun( function() {
     var data = points.find({}).fetch();
     $('h2').hide();
     if (canvas) {
@@ -17,9 +19,11 @@ Meteor.startup( function() {
   });
 });
 
-Template.drawingSurface.title = function () {
-  return 'Draw with Me! (A Collaborative, Real-Time Drawing Environment) Works best in Chrome.';
-}
+Template.drawingSurface.helpers({
+  'title': function () {
+    return 'Draw with Me! (A Collaborative, Real-Time Drawing Environment) Works best in Chrome.';
+  }
+});
 
 Template.drawingSurface.events({
   'click input': function (event) {
@@ -30,10 +34,17 @@ Template.drawingSurface.events({
 })
 
 var markPoint = function() {
-  var offset = $('#canvas').offset();
-      points.insert({
-      x: (event.pageX - offset.left),
-      y: (event.pageY - offset.top)});
+  var offset = $canvas.offset(); //$('#canvas').offset();
+
+  // Works only with insecure
+  //points.insert({
+  //x: (event.pageX - offset.left),
+  //y: (event.pageY - offset.top)});
+
+  Meteor.call('insert', {
+    x: (event.pageX - offset.left),
+    y: (event.pageY - offset.top)}
+  );
 }
 
 Template.canvas.events({

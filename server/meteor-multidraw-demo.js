@@ -1,4 +1,4 @@
-points = new Meteor.Collection('pointsCollection');
+points = new Mongo.Collection('pointsCollection');
 
 Meteor.publish('pointsSubscription', function () {
   return points.find();
@@ -7,5 +7,8 @@ Meteor.publish('pointsSubscription', function () {
 Meteor.methods({
   'clear': function () {
     points.remove({});
+  },
+  'insert': function(pt) {
+    points.insert(pt);
   }
 });
